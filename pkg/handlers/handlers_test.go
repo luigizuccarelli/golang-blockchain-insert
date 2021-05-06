@@ -10,7 +10,7 @@ import (
 	"testing"
 
 	"github.com/microlib/simple"
-	"lmzsoftware.com/luigizuccarelli/golang-blockchain-insert/pkg/connectors"
+	"lmzsoftware.com/lzuccarelli/golang-blockchain-insert/pkg/connectors"
 )
 
 type errReader int
