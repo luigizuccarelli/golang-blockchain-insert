@@ -8,9 +8,9 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/microlib/simple"
-	"lmzsoftware.com/luigizuccarelli/golang-blockchain-insert/pkg/connectors"
-	"lmzsoftware.com/luigizuccarelli/golang-blockchain-insert/pkg/handlers"
-	"lmzsoftware.com/luigizuccarelli/golang-blockchain-insert/pkg/validator"
+	"lmzsoftware.com/lzuccarelli/golang-blockchain-insert/pkg/connectors"
+	"lmzsoftware.com/lzuccarelli/golang-blockchain-insert/pkg/handlers"
+	"lmzsoftware.com/lzuccarelli/golang-blockchain-insert/pkg/validator"
 )
 
 var (

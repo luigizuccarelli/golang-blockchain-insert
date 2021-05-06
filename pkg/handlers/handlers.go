@@ -21,8 +21,8 @@ import (
 	"net/http"
 	"os"
 
-	"lmzsoftware.com/luigizuccarelli/golang-blockchain-insert/pkg/connectors"
-	"lmzsoftware.com/luigizuccarelli/golang-blockchain-insert/pkg/schema"
+	"lmzsoftware.com/lzuccarelli/golang-blockchain-insert/pkg/connectors"
+	"lmzsoftware.com/lzuccarelli/golang-blockchain-insert/pkg/schema"
 )
 
 const (
