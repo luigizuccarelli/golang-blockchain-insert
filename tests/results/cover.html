@@ -1,0 +1,464 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>handlers: Go Coverage Report</title>
+		<style>
+			body {
+				background: black;
+				color: rgb(80, 80, 80);
+			}
+			body, pre, #legend span {
+				font-family: Menlo, monospace;
+				font-weight: bold;
+			}
+			#topbar {
+				background: black;
+				position: fixed;
+				top: 0; left: 0; right: 0;
+				height: 42px;
+				border-bottom: 1px solid rgb(80, 80, 80);
+			}
+			#content {
+				margin-top: 50px;
+			}
+			#nav, #legend {
+				float: left;
+				margin-left: 10px;
+			}
+			#legend {
+				margin-top: 12px;
+			}
+			#nav {
+				margin-top: 10px;
+			}
+			#legend span {
+				margin: 0 5px;
+			}
+			.cov0 { color: rgb(192, 0, 0) }
+.cov1 { color: rgb(128, 128, 128) }
+.cov2 { color: rgb(116, 140, 131) }
+.cov3 { color: rgb(104, 152, 134) }
+.cov4 { color: rgb(92, 164, 137) }
+.cov5 { color: rgb(80, 176, 140) }
+.cov6 { color: rgb(68, 188, 143) }
+.cov7 { color: rgb(56, 200, 146) }
+.cov8 { color: rgb(44, 212, 149) }
+.cov9 { color: rgb(32, 224, 152) }
+.cov10 { color: rgb(20, 236, 155) }
+
+		</style>
+	</head>
+	<body>
+		<div id="topbar">
+			<div id="nav">
+				<select id="files">
+				
+				<option value="file0">lmzsoftware.com/luigizuccarelli/golang-microservice-blockchain-insert/pkg/handlers/handlers.go (82.1%)</option>
+				
+				<option value="file1">lmzsoftware.com/luigizuccarelli/golang-microservice-blockchain-insert/pkg/validator/validate.go (100.0%)</option>
+				
+				</select>
+			</div>
+			<div id="legend">
+				<span>not tracked</span>
+			
+				<span class="cov0">not covered</span>
+				<span class="cov8">covered</span>
+			
+			</div>
+		</div>
+		<div id="content">
+		
+		<pre class="file" id="file0" style="display: none">package handlers
+
+import (
+        "bytes"
+        "crypto"
+        "crypto/aes"
+        "crypto/cipher"
+        "crypto/rand"
+        "crypto/rsa"
+        "crypto/sha256"
+        "crypto/sha512"
+        "crypto/x509"
+        "encoding/base64"
+        "encoding/hex"
+        "encoding/json"
+        "encoding/pem"
+        "errors"
+        "fmt"
+        "io"
+        "io/ioutil"
+        "net/http"
+        "os"
+
+        "lmzsoftware.com/luigizuccarelli/golang-microservice-blockchain-insert/pkg/connectors"
+        "lmzsoftware.com/luigizuccarelli/golang-microservice-blockchain-insert/pkg/schema"
+)
+
+const (
+        CONTENTTYPE     string = "Content-Type"
+        APPLICATIONJSON string = "application/json"
+)
+
+// A Signer is can create signatures that verify against a public key.
+type Signer interface {
+        // Sign returns raw signature for the given data. This method
+        // will apply the hash specified for the keytype to the data.
+        Sign(data []byte) ([]byte, error)
+}
+
+/*
+// A Signer is can create signatures that verify against a public key.
+type Unsigner interface {
+        // Sign returns raw signature for the given data. This method
+        // will apply the hash specified for the keytype to the data.
+        Unsign(data []byte, sig []byte) error
+}
+*/
+
+// EncryptWithPublicKey encrypts data with public key
+func EncryptWithPublicKey(msg []byte, pub *rsa.PublicKey) ([]byte, error) <span class="cov8" title="1">{
+        hash := sha512.New()
+        ciphertext, err := rsa.EncryptOAEP(hash, rand.Reader, pub, msg, nil)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov8" title="1">return ciphertext, nil</span>
+}
+
+/*
+// DecryptWithPrivateKey decrypts data with private key
+func DecryptWithPrivateKey(ciphertext []byte, priv *rsa.PrivateKey) ([]byte, error) {
+        hash := sha512.New()
+        plaintext, err := rsa.DecryptOAEP(hash, rand.Reader, priv, ciphertext, nil)
+        if err != nil {
+                return nil, err
+        }
+        return plaintext, nil
+}
+
+// loadPrivateKey loads an parses a PEM encoded private key file.
+func loadPublicKey(path string) (Unsigner, error) {
+        data, err := ioutil.ReadFile(path)
+        if err != nil {
+                return nil, err
+        }
+        return parsePublicKey(data)
+}
+
+// parsePublicKey parses a PEM encoded private key.
+func parsePublicKey(pemBytes []byte) (Unsigner, error) {
+        block, _ := pem.Decode(pemBytes)
+        if block == nil {
+                return nil, errors.New("ssh: no key found")
+        }
+
+        var rawkey interface{}
+        switch block.Type {
+        case "RSA PUBLIC KEY":
+                rsa, err := x509.ParsePKIXPublicKey(block.Bytes)
+                if err != nil {
+                        return nil, err
+                }
+                rawkey = rsa
+        default:
+                return nil, fmt.Errorf("ssh: unsupported key type %q", block.Type)
+        }
+        return newUnsignerFromKey(rawkey)
+}
+*/
+
+// loadPrivateKey loads an parses a PEM encoded private key file.
+func loadPrivateKey(path string) (Signer, error) <span class="cov8" title="1">{
+        data, err := ioutil.ReadFile(path)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov8" title="1">return parsePrivateKey(data)</span>
+}
+
+// parsePublicKey parses a PEM encoded private key.
+func parsePrivateKey(pemBytes []byte) (Signer, error) <span class="cov8" title="1">{
+        block, _ := pem.Decode(pemBytes)
+        if block == nil </span><span class="cov0" title="0">{
+                return nil, errors.New("ssh: no key found")
+        }</span>
+
+        <span class="cov8" title="1">var rawkey interface{}
+        switch block.Type </span>{
+        case "RSA PRIVATE KEY":<span class="cov8" title="1">
+                rsa, err := x509.ParsePKCS1PrivateKey(block.Bytes)
+                if err != nil </span><span class="cov0" title="0">{
+                        return nil, err
+                }</span>
+                <span class="cov8" title="1">rawkey = rsa</span>
+        default:<span class="cov0" title="0">
+                return nil, fmt.Errorf("ssh: unsupported key type %q", block.Type)</span>
+        }
+        <span class="cov8" title="1">return newSignerFromKey(rawkey)</span>
+}
+
+func newSignerFromKey(k interface{}) (Signer, error) <span class="cov8" title="1">{
+        var sshKey Signer
+        switch t := k.(type) </span>{
+        case *rsa.PrivateKey:<span class="cov8" title="1">
+                sshKey = &amp;rsaPrivateKey{t}</span>
+        default:<span class="cov0" title="0">
+                return nil, fmt.Errorf("ssh: unsupported key type %T", k)</span>
+        }
+        <span class="cov8" title="1">return sshKey, nil</span>
+}
+
+/*
+func newUnsignerFromKey(k interface{}) (Unsigner, error) {
+        var sshKey Unsigner
+        switch t := k.(type) {
+        case *rsa.PublicKey:
+                sshKey = &amp;rsaPublicKey{t}
+        default:
+                return nil, fmt.Errorf("ssh: unsupported key type %T", k)
+        }
+        return sshKey, nil
+}
+*/
+
+type rsaPublicKey struct {
+        *rsa.PublicKey
+}
+
+type rsaPrivateKey struct {
+        *rsa.PrivateKey
+}
+
+// Sign signs data with rsa-sha256
+func (r *rsaPrivateKey) Sign(data []byte) ([]byte, error) <span class="cov8" title="1">{
+        h := sha256.New()
+        h.Write(data)
+        d := h.Sum(nil)
+        return rsa.SignPKCS1v15(rand.Reader, r.PrivateKey, crypto.SHA256, d)
+}</span>
+
+/*
+// Unsign encrypts data with rsa-sha256
+func (r *rsaPublicKey) Unsign(message []byte, sig []byte) error {
+        h := sha256.New()
+        h.Write(message)
+        d := h.Sum(nil)
+        return rsa.VerifyPKCS1v15(r.PublicKey, crypto.SHA256, d, sig)
+}
+*/
+
+// aes section
+func Encrypt(key []byte, text []byte) ([]byte, error) <span class="cov8" title="1">{
+        block, err := aes.NewCipher(key)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov8" title="1">b := base64.StdEncoding.EncodeToString(text)
+        ciphertext := make([]byte, aes.BlockSize+len(b))
+        iv := ciphertext[:aes.BlockSize]
+        if _, err := io.ReadFull(rand.Reader, iv); err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov8" title="1">cfb := cipher.NewCFBEncrypter(block, iv)
+        cfb.XORKeyStream(ciphertext[aes.BlockSize:], []byte(b))
+        return ciphertext, nil</span>
+}
+
+func EncryptInsertToBlockChain(w http.ResponseWriter, r *http.Request, con connectors.Clients) <span class="cov8" title="1">{
+        var response *schema.Response
+        var data *schema.InputData
+        addHeaders(w, r)
+        body, err := ioutil.ReadAll(r.Body)
+        if err != nil </span><span class="cov8" title="1">{
+                con.Error(fmt.Sprintf("EncryptInsertToBlockChain %v\n", err))
+                response = &amp;schema.Response{Name: os.Getenv("NAME"), StatusCode: "500", Status: "KO", Message: fmt.Sprintf("Could not read body data %v\n", err)}
+                w.WriteHeader(http.StatusInternalServerError)
+                b, _ := json.MarshalIndent(response, "", "        ")
+                fmt.Fprintf(w, string(b))
+                return
+        }</span>
+
+        <span class="cov8" title="1">data, err = encryptProcess(string(body), con)
+        if err != nil </span><span class="cov8" title="1">{
+                con.Error(fmt.Sprintf("EncryptInsertToBlockChain %v\n", err))
+                response = &amp;schema.Response{Name: os.Getenv("NAME"), StatusCode: "500", Status: "KO", Message: fmt.Sprintf("Could not read body data %v\n", err)}
+                w.WriteHeader(http.StatusInternalServerError)
+                b, _ := json.MarshalIndent(response, "", "        ")
+                fmt.Fprintf(w, string(b))
+                return
+        }</span>
+
+        // send to blockchain microservice
+        <span class="cov8" title="1">block, _ := json.MarshalIndent(&amp;data, "", "        ")
+        con.Debug(fmt.Sprintf("Data from encryptProcess : %v\n", data))
+        req, err := http.NewRequest("POST", os.Getenv("URL"), bytes.NewBuffer(block))
+        resp, err := con.Do(req)
+        defer resp.Body.Close()
+        if err != nil || resp.StatusCode != 200 </span><span class="cov8" title="1">{
+                con.Error(fmt.Sprintf("Http request %v\n", err))
+                response = &amp;schema.Response{Name: os.Getenv("NAME"), StatusCode: "500", Status: "KO", Message: fmt.Sprintf("Http request error %v\n", err)}
+                w.WriteHeader(http.StatusInternalServerError)
+        }</span> else<span class="cov8" title="1"> {
+                body, err := ioutil.ReadAll(resp.Body)
+                if err != nil </span><span class="cov0" title="0">{
+                        response = &amp;schema.Response{Name: os.Getenv("NAME"), StatusCode: "500", Status: "KO", Message: fmt.Sprintf("Could not read body data %v\n", err)}
+                        w.WriteHeader(http.StatusInternalServerError)
+                }</span> else<span class="cov8" title="1"> {
+                        response = &amp;schema.Response{Name: os.Getenv("NAME"), StatusCode: "200", Status: "OK", Message: "EncryptInsertToBlockChain request processed succesfully" + string(body)}
+                        w.WriteHeader(http.StatusOK)
+                }</span>
+        }
+        <span class="cov8" title="1">b, _ := json.MarshalIndent(response, "", "        ")
+        con.Debug(fmt.Sprintf("EncryptInsertToBlockChain response : %s", string(b)))
+        fmt.Fprintf(w, string(b))</span>
+}
+
+func encryptProcess(msg string, con connectors.Clients) (*schema.InputData, error) <span class="cov8" title="1">{
+        var data *schema.InputData
+
+        // check msg is not empty
+        if msg == "" </span><span class="cov8" title="1">{
+                return data, errors.New("empty msg field")
+        }</span>
+
+        <span class="cov8" title="1">signer, err := loadPrivateKey("../../keys/private.pem")
+        if err != nil </span><span class="cov0" title="0">{
+                con.Error(fmt.Sprintf("Private read file %v\n", err))
+                return data, err
+        }</span>
+
+        <span class="cov8" title="1">key := []byte("myverystrongpasswordo32bitlength")
+
+        signed, err := signer.Sign([]byte(key))
+        if err != nil </span><span class="cov0" title="0">{
+                con.Error(fmt.Sprintf("Signing failed %v\n", err))
+                return data, err
+        }</span>
+        <span class="cov8" title="1">sig := base64.StdEncoding.EncodeToString(signed)
+        con.Trace(fmt.Sprintf("Signature (ObjectA) %s\n", sig))
+
+        plainText := []byte(msg)
+        ct, err := Encrypt([]byte(key), plainText)
+        if err != nil </span><span class="cov0" title="0">{
+                con.Error(fmt.Sprintf("Reading public key %v\n", err))
+                return data, err
+        }</span>
+        <span class="cov8" title="1">con.Trace(fmt.Sprintf("AES encrypt (ObjectB) %s\n", hex.EncodeToString(ct)))
+
+        d, err := ioutil.ReadFile("../../keys/receiver-public.pem")
+        if err != nil </span><span class="cov0" title="0">{
+                con.Error(fmt.Sprintf("Reading public key %v\n", err))
+                return data, err
+        }</span>
+        <span class="cov8" title="1">block, _ := pem.Decode(d)
+        if block == nil </span><span class="cov0" title="0">{
+                con.Error("No ssh key")
+                return data, errors.New("No ssh key")
+        }</span>
+        <span class="cov8" title="1">pubRsa, err := x509.ParsePKIXPublicKey(block.Bytes)
+        encAesKey, err := EncryptWithPublicKey([]byte(key), pubRsa.(*rsa.PublicKey))
+        if err != nil </span><span class="cov0" title="0">{
+                return data, err
+        }</span>
+        <span class="cov8" title="1">con.Trace(fmt.Sprintf("Encrypt AES key (ObjectC) %s\n", hex.EncodeToString(encAesKey)))
+
+        data = &amp;schema.InputData{MetaInfo: "Microservice Blockchain Insert", ObjectA: sig, ObjectB: hex.EncodeToString(ct), ObjectC: hex.EncodeToString(encAesKey)}
+        return data, nil</span>
+
+}
+
+func IsAlive(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
+        fmt.Fprintf(w, "{ \"version\" : \"1.0.2\" , \"name\": \""+os.Getenv("NAME")+"\" }")
+}</span>
+
+// headers (with cors) utility
+func addHeaders(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
+        w.Header().Set(CONTENTTYPE, APPLICATIONJSON)
+        // use this for cors
+        w.Header().Set("Access-Control-Allow-Origin", "*")
+        w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+        w.Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
+}</span>
+</pre>
+		
+		<pre class="file" id="file1" style="display: none">package validator
+
+import (
+        "errors"
+        "fmt"
+        "os"
+        "strconv"
+        "strings"
+
+        "github.com/microlib/simple"
+)
+
+// checkEnvars - private function, iterates through each item and checks the required field
+func checkEnvar(item string, logger *simple.Logger) error <span class="cov8" title="1">{
+        name := strings.Split(item, ",")[0]
+        required, _ := strconv.ParseBool(strings.Split(item, ",")[1])
+        logger.Trace(fmt.Sprintf("name %s : required %t", name, required))
+        if os.Getenv(name) == "" </span><span class="cov8" title="1">{
+                if required </span><span class="cov8" title="1">{
+                        logger.Error(fmt.Sprintf("%s envar is mandatory please set it", name))
+                        return errors.New(fmt.Sprintf("%s envar is mandatory please set it", name))
+                }</span> else<span class="cov8" title="1"> {
+                        logger.Error(fmt.Sprintf("%s envar is empty please set it", name))
+                }</span>
+        }
+        <span class="cov8" title="1">return nil</span>
+}
+
+// ValidateEnvars : public call that groups all envar validations
+// These envars are set via the openshift template
+// Each microservice will obviously have a diffefrent envars so change where needed
+func ValidateEnvars(logger *simple.Logger) error <span class="cov8" title="1">{
+        items := []string{
+                "LOG_LEVEL,false",
+                "SERVER_PORT,true",
+                "VERSION,true",
+                "URL,true",
+        }
+        for x, _ := range items </span><span class="cov8" title="1">{
+                if err := checkEnvar(items[x], logger); err != nil </span><span class="cov8" title="1">{
+                        return err
+                }</span>
+        }
+        <span class="cov8" title="1">return nil</span>
+}
+</pre>
+		
+		</div>
+	</body>
+	<script>
+	(function() {
+		var files = document.getElementById('files');
+		var visible;
+		files.addEventListener('change', onChange, false);
+		function select(part) {
+			if (visible)
+				visible.style.display = 'none';
+			visible = document.getElementById(part);
+			if (!visible)
+				return;
+			files.value = part;
+			visible.style.display = 'block';
+			location.hash = part;
+		}
+		function onChange() {
+			select(files.value);
+			window.scrollTo(0, 0);
+		}
+		if (location.hash != "") {
+			select(location.hash.substr(1));
+		}
+		if (!visible) {
+			select("file0");
+		}
+	})();
+	</script>
+</html>
